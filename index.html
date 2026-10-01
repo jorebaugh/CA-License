@@ -94,6 +94,7 @@ button:focus-visible,select:focus-visible,.opt:focus-visible{outline:3px solid v
       <div class="seg" id="modeSeg">
         <button type="button" data-v="quiz" aria-pressed="true">Quiz</button>
         <button type="button" data-v="flash" aria-pressed="false">Flashcards</button>
+        <button type="button" data-v="read" aria-pressed="false">Answers only</button>
       </div>
     </div>
     <div class="row"><span class="lbl">Module</span>
@@ -126,7 +127,7 @@ button:focus-visible,select:focus-visible,.opt:focus-visible{outline:3px solid v
   </section>
 
   <main id="stage"></main>
-  <p class="hint">Keys: 1–4 pick an answer · Space flips or reveals · → next. "Again" adds a card to your trouble pile; "Got it" removes it.</p>
+  <p class="hint">Answers only shows each question with its correct answer for fast review. Keys: 1–4 pick an answer · Space flips or reveals · → next. "Again" adds a card to your trouble pile; "Got it" removes it.</p>
 </div>
 
 <script>
@@ -168,7 +169,7 @@ function build(){
 }
 function resetCard(){st.revealed=false; st.picked=null}
 function stats(){
-  $("#sScore").textContent = st.mode==="quiz" ? `${st.right}/${st.seen}` : `${Math.min(st.pos+ (st.revealed?1:0),st.queue.length)}/${st.queue.length}`;
+  $("#sScore").textContent = st.mode==="read" ? `${Math.min(st.pos+1,st.queue.length)}/${st.queue.length}` : st.mode==="quiz" ? `${st.right}/${st.seen}` : `${Math.min(st.pos+ (st.revealed?1:0),st.queue.length)}/${st.queue.length}`;
   $("#sTrouble").textContent = trouble.size;
 }
 function setTrouble(id,on){on?trouble.add(id):trouble.delete(id);store.set("ror_trouble",[...trouble])}
@@ -193,7 +194,7 @@ function render(){
     return;
   }
   const {c,order}=st.queue[st.pos];
-  const isQuiz = st.mode==="quiz";
+  const isQuiz = st.mode==="quiz"; const isRead = st.mode==="read";
   const correctPos = order.indexOf(c.correct);
   const optsHtml = order.map((oi,k)=>{
     let cls="opt";
@@ -201,10 +202,11 @@ function render(){
     if(!isQuiz && st.revealed && oi===c.correct) cls+=" right";
     return `<li><button type="button" class="${cls}" data-k="${k}" ${(!isQuiz||st.picked!==null)?"disabled":""}><span class="k">${LET[k]}</span><span>${esc(c.opts[oi])}</span></button></li>`;
   }).join("");
-  const showAns = isQuiz ? st.picked!==null : st.revealed;
+  const showAns = isRead || (isQuiz ? st.picked!==null : st.revealed);
   let verdict="";
   if(isQuiz && st.picked!==null) verdict = st.picked===correctPos?`<div class="verdict ok">Correct</div>`:`<div class="verdict no">Not quite — answer is ${LET[correctPos]}</div>`;
-  if(!isQuiz && st.revealed) verdict = `<div class="verdict neutral">Answer: ${LET[correctPos]}</div>`;
+  if(isRead) verdict = `<div class="verdict neutral">Answer</div>`;
+  else if(!isQuiz && st.revealed) verdict = `<div class="verdict neutral">Answer: ${LET[correctPos]}</div>`;
   const tagName = {Both:"Both Intl & Inland",Inland:"Inland only",Intl:"International only"}[c.tag];
   const secName = {RR:"Rules of the Road",DGS:"Deck General",NG:"Navigation General",NMC:"USCG NMC Sample"}[c.sec];
   stage.innerHTML = `<article class="card">
@@ -213,7 +215,7 @@ function render(){
       ${trouble.has(c.id)?`<span class="chip trouble">Trouble pile</span>`:""}
       <span class="count">${st.pos+1} / ${st.queue.length}</span></div>
     <p class="q">${esc(c.q)}</p>
-    <ul class="opts">${optsHtml}</ul>
+    ${isRead?"":`<ul class="opts">${optsHtml}</ul>`}
     ${showAns?`<div class="answer">${verdict}<div class="a">${esc(c.opts[c.correct])}</div>${c.expl?`<p class="ex">${esc(c.expl)}</p>`:""}${c.ref?`<div class="ref">Ref: ${esc(c.ref)}</div>`:""}</div>`:""}
     <div class="actions">
       ${showAns
@@ -254,7 +256,7 @@ document.addEventListener("keydown",e=>{
   if(e.target.tagName==="SELECT") return;
   if(/^[1-4]$/.test(e.key)) pick(+e.key-1);
   else if(e.key===" "){ e.preventDefault(); if(st.mode==="flash"&&!st.revealed) flip(); else next(); }
-  else if(e.key==="ArrowRight"){ if(st.mode==="flash"&&!st.revealed) flip(); else if(st.mode==="flash"||st.picked!==null) next(); }
+  else if(e.key==="ArrowRight"){ if(st.mode==="flash"&&!st.revealed) flip(); else if(st.mode!=="quiz"||st.picked!==null) next(); }
 });
 fillTopics(); syncControls(); build();
 if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(()=>{});}
