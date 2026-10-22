@@ -77,6 +77,48 @@ button:focus-visible,select:focus-visible,.opt:focus-visible{outline:3px solid v
 .done .big{font-family:var(--display);font-size:3rem;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
 @media (max-width:480px){.q{font-size:1.06rem}.card{padding:16px 14px}.lbl{min-width:0;width:100%}}
 @media (prefers-reduced-motion:no-preference){.card{animation:in .18s ease-out}@keyframes in{from{transform:translateY(4px);opacity:.6}to{transform:none;opacity:1}}}
+
+/* v2: tabs, exam simulator, drill, guides */
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.tabs button{border:0;background:transparent;color:var(--ink);font:700 .95rem var(--display);letter-spacing:.04em;text-transform:uppercase;padding:10px 4px;cursor:pointer}
+.tabs button+button{border-left:1px solid var(--line)}
+.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
+.panel{display:grid;gap:16px}
+.cfg{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:14px}
+.cfg h2,.card h2{font-family:var(--display);font-size:1.35rem;margin:0}
+.mods{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+.mod{text-align:left;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:12px;cursor:pointer;color:var(--ink);font:400 .9rem var(--body);display:grid;gap:4px}
+.mod b{font:700 1.02rem var(--body)}
+.mod[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.mod small{color:var(--muted)}
+.hist{font-size:.85rem;color:var(--muted);display:grid;gap:4px}
+.hist .p{color:var(--good);font-weight:700}.hist .f{color:var(--bad);font-weight:700}
+.exbar{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between;font-family:var(--mono);font-size:.85rem;color:var(--muted)}
+.exbar b{color:var(--ink)}
+.grid{display:flex;flex-wrap:wrap;gap:4px}
+.grid button{width:34px;height:30px;border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:6px;font:600 .78rem var(--mono);cursor:pointer;padding:0}
+.grid button.ans{background:var(--chip-bg);color:var(--ink)}
+.grid button.flag{border-color:var(--intl);color:var(--intl)}
+.grid button.cur{outline:2px solid var(--accent);outline-offset:1px}
+.grid button.r{background:var(--good-bg);border-color:var(--good);color:var(--good)}
+.grid button.w{background:var(--bad-bg);border-color:var(--bad);color:var(--bad)}
+.opt.sel{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.result .big.pass{color:var(--good)}.result .big.fail{color:var(--bad)}
+.miss{border-top:1px solid var(--line);padding-top:10px;display:grid;gap:4px}
+.miss .yours{color:var(--bad)}.miss .right{color:var(--good);font-weight:600}
+.tbl{width:100%;border-collapse:collapse;font-size:.88rem}
+.tbl td,.tbl th{border-bottom:1px solid var(--line);padding:5px 6px;text-align:left}
+.tbl th{font-family:var(--display);text-transform:uppercase;letter-spacing:.06em;font-size:.75rem;color:var(--muted)}
+.ladder{font-family:var(--mono);font-size:.92rem;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;white-space:pre-wrap;line-height:1.55;margin:0;overflow-x:auto}
+.glist{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.gcard{border:1px solid var(--line);background:var(--surface);border-radius:10px;overflow:hidden;cursor:pointer;padding:0;text-align:left;color:var(--ink);font:inherit;display:grid}
+.gcard img{width:100%;aspect-ratio:612/792;object-fit:cover;object-position:top;display:block;background:var(--chip-bg)}
+.gcard div{padding:8px 10px;display:grid;gap:2px}.gcard b{font-size:.95rem}.gcard small{color:var(--muted)}
+.gview{display:grid;gap:10px}
+.gtop{position:sticky;top:0;z-index:2;display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--bg);padding:8px 0;border-bottom:1px solid var(--line)}
+.gtop .ttl{font-family:var(--display);font-weight:700;font-size:1.1rem;flex:1;min-width:140px}
+.gpage{width:100%;display:block;border:1px solid var(--line);border-radius:6px;background:#fff;aspect-ratio:612/792;height:auto}
+.offline{font-size:.85rem;color:var(--muted)}.offline.ok{color:var(--good)}
 </style>
 
 </head><body>
@@ -84,11 +126,18 @@ button:focus-visible,select:focus-visible,.opt:focus-visible{outline:3px solid v
   <header>
     <div>
       <h1>CA License Study</h1>
-      <p class="sub">OUPV captain's license drill: Rules of the Road, Deck General &amp; Safety, Navigation General, plus official USCG sample exams.</p>
+      <p class="sub">OUPV captain's license drill: Rules of the Road, Deck General &amp; Safety, Navigation General, plus official USCG sample exams, practice exams, a piloting drill and all four study guides.</p>
     </div>
     <div class="stats" aria-live="polite"><span>Session <b id="sScore">0/0</b></span><span>Trouble <b id="sTrouble">0</b></span></div>
   </header>
 
+  <nav class="tabs" id="tabs" role="tablist" aria-label="Sections">
+    <button type="button" role="tab" data-t="study" aria-selected="true">Study</button>
+    <button type="button" role="tab" data-t="exam" aria-selected="false">Exam</button>
+    <button type="button" role="tab" data-t="drill" aria-selected="false">Drill</button>
+    <button type="button" role="tab" data-t="guides" aria-selected="false">Guides</button>
+  </nav>
+  <div id="view-study" class="panel">
   <section class="controls" aria-label="Study settings">
     <div class="row"><span class="lbl">Mode</span>
       <div class="seg" id="modeSeg">
@@ -128,6 +177,10 @@ button:focus-visible,select:focus-visible,.opt:focus-visible{outline:3px solid v
 
   <main id="stage"></main>
   <p class="hint">Answers only shows each question with its correct answer for fast review. Keys: 1–4 pick an answer · Space flips or reveals · → next. "Again" adds a card to your trouble pile; "Got it" removes it.</p>
+  </div>
+  <div id="view-exam" class="panel" hidden></div>
+  <div id="view-drill" class="panel" hidden></div>
+  <div id="view-guides" class="panel" hidden></div>
 </div>
 
 <script>
@@ -185,7 +238,7 @@ function render(){
   if(st.pos>=st.queue.length){
     const pct = st.seen?Math.round(100*st.right/st.seen):0;
     stage.innerHTML = `<div class="card done">
-      ${st.mode==="quiz"?`<div class="big">${pct}%</div><p>${st.right} of ${st.seen} correct. The exam needs 90%.</p>`:`<div class="big">${st.queue.length}</div><p>cards reviewed.</p>`}
+      ${st.mode==="quiz"?`<div class="big">${pct}%</div><p>${st.right} of ${st.seen} correct. ${st.sec==="RR"?"Rules of the Road needs 90%.":st.sec==="DGS"||st.sec==="NG"?"This module needs 70%.":"Rules of the Road needs 90%; Deck and Nav General need 70%."}</p>`:`<div class="big">${st.queue.length}</div><p>cards reviewed.</p>`}
       <p class="hint">${trouble.size} card${trouble.size===1?"":"s"} in your trouble pile.</p>
       <div class="grp actions"><button class="btn primary" type="button" id="again">Shuffle &amp; go again</button>
       ${trouble.size?`<button class="btn" type="button" id="drillT">Drill trouble cards</button>`:""}</div></div>`;
@@ -254,11 +307,237 @@ $("#setSel").onchange=e=>{st.set=e.target.value;build()};
 $("#restart").onclick=build;
 document.addEventListener("keydown",e=>{
   if(e.target.tagName==="SELECT") return;
+  if(store.get("ca_tab","study")!=="study") return;
   if(/^[1-4]$/.test(e.key)) pick(+e.key-1);
   else if(e.key===" "){ e.preventDefault(); if(st.mode==="flash"&&!st.revealed) flip(); else next(); }
   else if(e.key==="ArrowRight"){ if(st.mode==="flash"&&!st.revealed) flip(); else if(st.mode!=="quiz"||st.picked!==null) next(); }
 });
 fillTopics(); syncControls(); build();
+const SW_FILE_COUNT=71;
+
+/* ================= v2: tabs ================= */
+const TABS=["study","exam","drill","guides"];
+function showTab(t){
+  if(!TABS.includes(t)) t="study";
+  TABS.forEach(x=>{const v=document.getElementById("view-"+x); if(v) v.hidden = x!==t;});
+  document.querySelectorAll("#tabs button").forEach(b=>b.setAttribute("aria-selected", b.dataset.t===t));
+  store.set("ca_tab",t);
+  if(t==="exam") exRender();
+  if(t==="drill" && !dr.cur) drNew();
+  if(t==="guides") gRender();
+}
+document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>showTab(b.dataset.t));
+
+/* ================= Exam simulator ================= */
+const EXAMS={
+  RR:{name:"Rules of the Road", n:50, pass:90, pool:c=>c.sec==="RR"||(c.sec==="NMC"&&/^Q100/.test(c.topic))},
+  DGS:{name:"Deck General & Safety", n:50, pass:70, pool:c=>c.sec==="DGS"||(c.sec==="NMC"&&/^Q170/.test(c.topic))},
+  NG:{name:"Navigation General", n:50, pass:70, pool:c=>c.sec==="NG"||(c.sec==="NMC"&&/^Q171/.test(c.topic))}
+};
+const ex={mod:store.get("ca_ex_mod","RR"), len:store.get("ca_ex_len","full"), cur:store.get("ca_exam_cur",null), view:"cfg", result:null};
+let exTimer=null;
+function exSave(){store.set("ca_exam_cur",ex.cur)}
+function fmtTime(ms){const s=Math.floor(ms/1000),h=Math.floor(s/3600),m=Math.floor(s%3600/60),ss=s%60;return (h?h+":":"")+String(m).padStart(h?2:1,"0")+":"+String(ss).padStart(2,"0")}
+function exStart(){
+  const E=EXAMS[ex.mod]; const n={full:E.n,half:Math.round(E.n/2),quick:10}[ex.len];
+  const pool=shuffle(CARDS.filter(E.pool)).slice(0,n);
+  ex.cur={mod:ex.mod,n,start:Date.now(),pos:0,items:pool.map(c=>{const idx=c.opts.map((_,i)=>i); if(!lockedOrder(c)) shuffle(idx); return {id:c.id,order:idx,pick:null,flag:false}})};
+  exSave(); exRender();
+}
+function exGrade(){
+  const cur=ex.cur, E=EXAMS[cur.mod];
+  let right=0; const misses=[]; const byTopic={};
+  cur.items.forEach((it,i)=>{const c=CARDS[it.id]; const ok=it.pick!==null && it.order[it.pick]===c.correct;
+    const t=c.sec==="NMC"?"USCG sample":c.topic||"Other";
+    byTopic[t]=byTopic[t]||{n:0,r:0}; byTopic[t].n++;
+    if(ok){right++;byTopic[t].r++} else {misses.push(i); setTrouble(c.id,true)}});
+  const pct=Math.round(100*right/cur.n), need=Math.ceil(cur.n*E.pass/100);
+  const res={mod:cur.mod,n:cur.n,right,pct,pass:right>=need,need,ms:Date.now()-cur.start,when:Date.now(),misses,byTopic,items:cur.items};
+  const hist=store.get("ca_exam_hist",[]); hist.unshift({mod:res.mod,n:res.n,right,pct,pass:res.pass,ms:res.ms,when:res.when}); store.set("ca_exam_hist",hist.slice(0,15));
+  ex.result=res; ex.cur=null; exSave(); exRender();
+}
+function exRender(){
+  const el=$("#view-exam"); clearInterval(exTimer);
+  if(ex.result) return exResults(el);
+  if(ex.cur) return exQuestion(el);
+  const hist=store.get("ca_exam_hist",[]);
+  el.innerHTML=`<section class="cfg"><h2>Practice exam</h2>
+    <p class="hint" style="margin:0">Matches the MLS final: each module is graded on its own. No feedback until you submit. Misses go to your trouble pile.</p>
+    <div class="mods" id="exMods">${Object.entries(EXAMS).map(([k,E])=>`<button type="button" class="mod" data-k="${k}" aria-pressed="${k===ex.mod}"><b>${esc(E.name)}</b><small>${E.n} questions · pass ${E.pass}% (${Math.ceil(E.n*E.pass/100)} right) · ${CARDS.filter(E.pool).length} in the bank</small></button>`).join("")}</div>
+    <div class="row"><span class="lbl">Length</span><div class="seg" id="exLen">
+      <button type="button" data-v="full" aria-pressed="${ex.len==="full"}">Full (${EXAMS[ex.mod].n})</button>
+      <button type="button" data-v="half" aria-pressed="${ex.len==="half"}">Half (${Math.round(EXAMS[ex.mod].n/2)})</button>
+      <button type="button" data-v="quick" aria-pressed="${ex.len==="quick"}">Quick (10)</button></div></div>
+    <div><button type="button" class="btn primary" id="exGo">Start exam</button></div>
+    <p class="hint" style="margin:0">Chart Plotting (10 questions, 90%) is done on a paper chart: use the Chart Plotting guide's practice chart.</p>
+  </section>
+  ${hist.length?`<section class="cfg"><h2>Recent exams</h2><div class="hist">${hist.map(h=>`<div>${new Date(h.when).toLocaleDateString()} · ${esc(EXAMS[h.mod].name)} · ${h.right}/${h.n} (${h.pct}%) · <span class="${h.pass?"p":"f"}">${h.pass?"PASS":"FAIL"}</span> · ${fmtTime(h.ms)}</div>`).join("")}</div></section>`:""}`;
+  el.querySelectorAll("#exMods .mod").forEach(b=>b.onclick=()=>{ex.mod=b.dataset.k;store.set("ca_ex_mod",ex.mod);exRender()});
+  el.querySelectorAll("#exLen button").forEach(b=>b.onclick=()=>{ex.len=b.dataset.v;store.set("ca_ex_len",ex.len);exRender()});
+  $("#exGo").onclick=exStart;
+}
+function exQuestion(el){
+  const cur=ex.cur, E=EXAMS[cur.mod], it=cur.items[cur.pos], c=CARDS[it.id];
+  const answered=cur.items.filter(x=>x.pick!==null).length;
+  el.innerHTML=`<section class="cfg">
+    <div class="exbar"><span><b>${esc(E.name)}</b></span><span>Answered <b>${answered}/${cur.n}</b></span><span>Time <b id="exClock">${fmtTime(Date.now()-cur.start)}</b> / 3:30:00</span></div>
+    <div class="grid" id="exGrid">${cur.items.map((x,i)=>`<button type="button" data-i="${i}" class="${x.pick!==null?"ans":""} ${x.flag?"flag":""} ${i===cur.pos?"cur":""}" aria-label="Question ${i+1}">${i+1}</button>`).join("")}</div>
+  </section>
+  <article class="card">
+    <div class="meta"><span class="chip sec">Question ${cur.pos+1} of ${cur.n}</span>${c.sec==="RR"||(c.sec==="NMC"&&c.tag)?`<span class="chip ${c.tag}">${{Both:"Both Intl & Inland",Inland:"Inland only",Intl:"International only"}[c.tag]||""}</span>`:""}</div>
+    <p class="q">${esc(c.q)}</p>
+    <ul class="opts">${it.order.map((oi,k)=>`<li><button type="button" class="opt ${it.pick===k?"sel":""}" data-k="${k}"><span class="k">${LET[k]}</span><span>${esc(c.opts[oi])}</span></button></li>`).join("")}</ul>
+    <div class="actions"><div class="grp"><button class="btn" type="button" id="exPrev" ${cur.pos?"":"disabled"}>← Prev</button><button class="btn" type="button" id="exFlag">${it.flag?"Unflag":"Flag"}</button></div>
+      <div class="grp">${cur.pos<cur.n-1?`<button class="btn primary" type="button" id="exNext">Next →</button>`:""}<button class="btn ${cur.pos===cur.n-1?"primary":""}" type="button" id="exSubmit">Submit</button></div></div>
+    <div class="actions"><button class="btn bad" type="button" id="exQuit">Quit exam</button><span class="hint">Keys: 1–4 answer · ← → move</span></div>
+  </article>`;
+  el.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{it.pick=+b.dataset.k;exSave();if(cur.pos<cur.n-1){cur.pos++;exSave()}exRender()});
+  el.querySelectorAll("#exGrid button").forEach(b=>b.onclick=()=>{cur.pos=+b.dataset.i;exSave();exRender()});
+  $("#exPrev").onclick=()=>{if(cur.pos){cur.pos--;exSave();exRender()}};
+  const nx=$("#exNext"); if(nx) nx.onclick=()=>{cur.pos++;exSave();exRender()};
+  $("#exFlag").onclick=()=>{it.flag=!it.flag;exSave();exRender()};
+  $("#exSubmit").onclick=()=>{const un=cur.n-cur.items.filter(x=>x.pick!==null).length, fl=cur.items.filter(x=>x.flag).length;
+    if((un||fl)&&!confirm(`${un?un+" unanswered (they count as wrong). ":""}${fl?fl+" flagged. ":""}Submit anyway?`)) return; exGrade()};
+  $("#exQuit").onclick=()=>{if(confirm("Quit this exam? It won't be scored.")){ex.cur=null;exSave();exRender()}};
+  exTimer=setInterval(()=>{const k=$("#exClock"); if(k) k.textContent=fmtTime(Date.now()-cur.start); else clearInterval(exTimer)},1000);
+}
+function exResults(el){
+  const r=ex.result, E=EXAMS[r.mod];
+  const topics=Object.entries(r.byTopic).sort((a,b)=>(a[1].r/a[1].n)-(b[1].r/b[1].n));
+  el.innerHTML=`<article class="card done result">
+    <div class="big ${r.pass?"pass":"fail"}">${r.pct}%</div>
+    <p style="margin:0"><b>${r.pass?"PASS":"NOT YET"}</b> · ${esc(E.name)} · ${r.right} of ${r.n} right (needed ${r.need}) · ${fmtTime(r.ms)}</p>
+    <p class="hint" style="margin:0">${r.misses.length} miss${r.misses.length===1?"":"es"} added to your trouble pile.</p>
+    <div class="grp actions"><button class="btn primary" type="button" id="exAgain">New exam</button><button class="btn" type="button" id="exTrouble">Drill trouble cards</button></div>
+  </article>
+  <section class="cfg"><h2>By topic</h2><table class="tbl"><tr><th>Topic</th><th>Right</th><th>%</th></tr>${topics.map(([t,v])=>`<tr><td>${esc(t)}</td><td>${v.r}/${v.n}</td><td>${Math.round(100*v.r/v.n)}%</td></tr>`).join("")}</table></section>
+  ${r.misses.length?`<section class="cfg"><h2>Review your misses</h2>${r.misses.map(i=>{const it=r.items[i],c=CARDS[it.id];
+    return `<div class="miss"><div><b>${i+1}.</b> ${esc(c.q)}</div>${it.pick!==null?`<div class="yours">Your answer: ${esc(c.opts[it.order[it.pick]])}</div>`:`<div class="yours">Not answered</div>`}<div class="right">Correct: ${esc(c.opts[c.correct])}</div>${c.expl?`<div class="hint">${esc(c.expl)}</div>`:""}</div>`}).join("")}</section>`:""}`;
+  $("#exAgain").onclick=()=>{ex.result=null;exRender()};
+  $("#exTrouble").onclick=()=>{ex.result=null;st.sec="all";st.set="trouble";st.src="all";st.tag="all";fillTopics();syncControls();build();showTab("study")};
+}
+
+/* ================= Piloting drill ================= */
+const DRILLS={mix:"Mixed",c2t:"Compass → True",t2c:"True → Compass",dev:"Deviation on a range",lee:"Leeway",var:"Variation by year",lr:"Light range",sdt:"60D = ST",abm:"Distance abeam"};
+const dr={type:store.get("ca_dr_type","mix"),cur:null,pick:null,right:0,seen:0};
+const R=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const N3=x=>String(((Math.round(x)%360)+360)%360).padStart(3,"0");
+const EW=v=>`${Math.abs(v)}°${v>=0?"E":"W"}`;
+const one=a=>a[Math.floor(Math.random()*a.length)];
+function mc(ans,cands,fmtf){ // build 4 unique options
+  const seen=new Set([fmtf(ans)]); const out=[fmtf(ans)];
+  for(const c of cands){const f=fmtf(c); if(!seen.has(f)){seen.add(f);out.push(f)} if(out.length===4)break}
+  let k=1; while(out.length<4){const f=fmtf(typeof ans==="number"?ans+(k%2?k:-k):ans); if(!seen.has(f)){seen.add(f);out.push(f)} k++}
+  const opts=shuffle(out.slice()); return {opts, correct:opts.indexOf(fmtf(ans))};
+}
+function nz(lo,hi){let v=0;while(!v)v=R(lo,hi);return v}
+const GEN={
+  c2t(){const C=R(0,359),D=nz(-6,6),V=nz(-18,18),M=C+D,T=M+V;
+    return {q:`Compass heading ${N3(C)}°, deviation ${EW(D)}, variation ${EW(V)}. What is the TRUE heading?`,
+      ...mc(T,[C-D-V,C+D-V,C-D+V,T+2],x=>N3(x)+"°T"),
+      work:`C  ${N3(C)}°\nD  ${EW(D)}   correcting: ${D>0?"add east":"subtract west"}\nM  ${N3(M)}°\nV  ${EW(V)}   correcting: ${V>0?"add east":"subtract west"}\nT  ${N3(T)}°  ← answer`}},
+  t2c(){const T=R(0,359),V=nz(-18,18),D=nz(-6,6),M=T-V,C=M-D;
+    return {q:`True course ${N3(T)}°, variation ${EW(V)}, deviation ${EW(D)}. What COMPASS course do you steer?`,
+      ...mc(C,[T+V+D,T-V+D,T+V-D,C-2],x=>N3(x)+"° C"),
+      work:`T  ${N3(T)}°\nV  ${EW(V)}   uncorrecting: ${V>0?"subtract east":"add west"}\nM  ${N3(M)}°\nD  ${EW(D)}   uncorrecting: ${D>0?"subtract east":"add west"}\nC  ${N3(C)}°  ← steer this`}},
+  dev(){const T=R(0,359),V=nz(-15,15),D=nz(-6,6),M=T-V,C=M-D;
+    return {q:`A range bears ${N3(T)}°T on the chart, variation is ${EW(V)}. With the range in line dead ahead your compass reads ${N3(C)}°. What is the deviation?`,
+      ...mc(D,[-D,D+(V>0?2:-2),-(D+1),D*2||3],x=>EW(x)),
+      work:`T  ${N3(T)}°\nV  ${EW(V)}   ${V>0?"subtract east":"add west"} going down\nM  ${N3(M)}°\nD  ?\nC  ${N3(C)}°\n\nCompass ${N3(C)} reads ${D>0?"LESS":"MORE"} than magnetic ${N3(M)}\n→ "compass ${D>0?"least, error east":"best, error west"}": ${EW(D)}`}},
+  lee(){const C=R(0,359),D=nz(-5,5),V=nz(-16,16),L=R(2,6),M=C+D,T=M+V;
+    const side=one(["port","starboard"]); const rel=R(35,145); const W=side==="starboard"?T+rel:T-rel;
+    const ans=side==="port"?T+L:T-L;
+    const pts=["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"]; const wn=pts[Math.round((((W%360)+360)%360)/22.5)%16];
+    const Wr=Math.round((((W%360)+360)%360)/22.5)%16*22.5; const relR=(((Wr-T)%360)+360)%360; const sideR=relR>0&&relR<180?"starboard":"port";
+    const ansR=sideR==="port"?T+L:T-L;
+    return {q:`Steering ${N3(C)}° per compass, deviation ${EW(D)}, variation ${EW(V)}. Wind from the ${wn} gives ${L}° of leeway. What TRUE course are you making good?`,
+      ...mc(ansR,[sideR==="port"?T-L:T+L,T,ansR-2*V,ansR+4],x=>N3(x)+"°T"),
+      work:`C ${N3(C)} ${D>0?"+":"−"} ${Math.abs(D)}${D>0?"E":"W"} = M ${N3(M)}\nM ${N3(M)} ${V>0?"+":"−"} ${Math.abs(V)}${V>0?"E":"W"} = T ${N3(T)}\n\nWind from ${wn} (${N3(Wr)}°) hits the ${sideR} side heading ${N3(T)}\n→ pushed to ${sideR==="port"?"starboard: ADD":"port: SUBTRACT"} ${L}°\nCourse made good ${N3(ansR)}°T`}},
+  var(){const base=R(2,18), bm=one([0,10,15,20,30,40,45,50]), dir=one(["E","W"]), chg=R(2,9), chDir=one(["E","W"]), y0=R(1990,2016), y=2026, n=y-y0;
+    const toMin=(d,m,s)=>(d*60+m)*(s==="E"?1:-1); const v0=toMin(base,bm,dir); const v=v0+n*chg*(chDir==="E"?1:-1);
+    const f=m=>{const a=Math.abs(m);return `${Math.floor(a/60)}°${String(a%60).padStart(2,"0")}'${m>=0?"E":"W"}`};
+    return {q:`The compass rose shows variation ${base}°${String(bm).padStart(2,"0")}'${dir} (${y0}), annual change ${chg}'${chDir}. What variation do you apply in ${y}?`,
+      ...mc(v,[v0-n*chg*(chDir==="E"?1:-1),v0,v0+(n-1)*chg*(chDir==="E"?1:-1),v+30],f),
+      work:`${y} − ${y0} = ${n} years × ${chg}' = ${n*chg}' toward ${chDir}\n${f(v0)} ${(chDir==="E")===(v0>=0)?"+":"−"} ${n*chg}'  (an ${chDir} change moves it ${chDir==="E"?"east":"west"})\n= ${f(v)}`}},
+  lr(){const h=one([9,16,25,36,40,49,52,60,64,81,100,121,144]),e=one([4,6,9,12,16,20,25]);const g=1.17*(Math.sqrt(h)+Math.sqrt(e));
+    return {q:`A light is ${h} ft above the water and your height of eye is ${e} ft. What is its geographic range?`,
+      ...mc(g,[1.17*Math.sqrt(h+e),Math.sqrt(h)+Math.sqrt(e),1.17*Math.sqrt(h),g*1.15],x=>x.toFixed(1)+" nm"),
+      work:`Geographic range = 1.17 × (√${h} + √${e})\n= 1.17 × (${Math.sqrt(h).toFixed(2)} + ${Math.sqrt(e).toFixed(2)})\n= ${g.toFixed(1)} nm\n\nYou first see it at the LESSER of this and its luminous range.`}},
+  sdt(){const S=R(5,22),T=one([12,15,18,20,24,30,36,40,45,48,50,54,60,72,75,90,96,105,120,135,150]);const D=S*T/60;
+    const k=one(["D","T","S"]);
+    if(k==="D") return {q:`You make ${S} knots for ${T} minutes. How far do you go?`,...mc(D,[S*T/100,S*T,D*1.5,T/S],x=>(+x).toFixed(1)+" nm"),work:`60D = ST\nD = S × T ÷ 60 = ${S} × ${T} ÷ 60 = ${D.toFixed(1)} nm`};
+    if(k==="T") return {q:`How long does it take to run ${D.toFixed(1)} nm at ${S} knots?`,...mc(T,[Math.round(D/S*100),Math.round(S/D*60),T+10,Math.round(T/2)],x=>Math.round(x)+" min"),work:`60D = ST\nT = 60 × D ÷ S = 60 × ${D.toFixed(1)} ÷ ${S} = ${T} min`};
+    return {q:`You cover ${D.toFixed(1)} nm in ${T} minutes. What is your speed?`,...mc(S,[D/T,(D/T)*100,S+2,S-2],x=>(+x).toFixed(1)+" kn"),work:`60D = ST\nS = 60 × D ÷ T = 60 × ${D.toFixed(1)} ÷ ${T} = ${S.toFixed(1)} kn`}},
+  abm(){const Rg=R(6,20),o=R(1,Math.min(6,Rg-2));const d=Math.sqrt(Rg*Rg-o*o);
+    return {q:`A light is dead ahead ${Rg} miles. You alter course to pass it ${o} miles abeam. How far do you run until it's abeam?`,
+      ...mc(d,[Rg-o,Math.sqrt(Rg*Rg+o*o),Rg,d-1],x=>x.toFixed(1)+" mi"),
+      work:`Right triangle: hypotenuse = range ${Rg}, side = passing distance ${o}\nDistance = √(${Rg}² − ${o}²) = √${Rg*Rg-o*o} = ${d.toFixed(1)} mi\nCourse change = arcsin(${o} ÷ ${Rg}) = ${(Math.asin(o/Rg)*180/Math.PI).toFixed(0)}°`}}
+};
+function drNew(){const t=dr.type==="mix"?one(Object.keys(GEN)):dr.type; dr.cur={...GEN[t](),t}; dr.pick=null; drRender()}
+function drRender(){
+  const el=$("#view-drill"); const p=dr.cur;
+  el.innerHTML=`<section class="cfg"><h2>Piloting drill</h2>
+    <div class="row"><select id="drType" aria-label="Problem type">${Object.entries(DRILLS).map(([k,v])=>`<option value="${k}" ${k===dr.type?"selected":""}>${v}</option>`).join("")}</select>
+    <span class="stats"><span>Drill <b>${dr.right}/${dr.seen}</b></span></span></div>
+    <p class="hint" style="margin:0">Fresh numbers every time. Work it on paper first, then pick.</p></section>
+  <article class="card"><div class="meta"><span class="chip sec">${DRILLS[p.t]}</span></div><p class="q">${esc(p.q)}</p>
+    <ul class="opts">${p.opts.map((o,k)=>{let cls="opt"; if(dr.pick!==null){if(k===p.correct)cls+=" right";else if(k===dr.pick)cls+=" wrong"} return `<li><button type="button" class="${cls}" data-k="${k}" ${dr.pick!==null?"disabled":""}><span class="k">${LET[k]}</span><span>${esc(o)}</span></button></li>`}).join("")}</ul>
+    ${dr.pick!==null?`<div class="answer"><div class="verdict ${dr.pick===p.correct?"ok":"no"}">${dr.pick===p.correct?"Correct":"Not quite — answer is "+LET[p.correct]}</div><pre class="ladder">${esc(p.work)}</pre></div>`:""}
+    <div class="actions"><span class="hint">${dr.pick===null?"Pick an answer":""}</span><button class="btn primary" type="button" id="drNext">${dr.pick===null?"Skip":"Next problem →"}</button></div></article>`;
+  $("#drType").onchange=e=>{dr.type=e.target.value;store.set("ca_dr_type",dr.type);drNew()};
+  el.querySelectorAll(".opt:not([disabled])").forEach(b=>b.onclick=()=>{dr.pick=+b.dataset.k;dr.seen++;if(dr.pick===p.correct)dr.right++;drRender()});
+  $("#drNext").onclick=()=>{drNew();window.scrollTo({top:0,behavior:"smooth"})};
+}
+
+/* ================= Guides ================= */
+const GUIDES=[
+  {id:"ror",title:"Rules of the Road",pages:16,pdf:"Rules_of_the_Road_Study_Guide.pdf"},
+  {id:"dgs",title:"Deck General & Safety",pages:20,pdf:"Deck_General_Safety_Study_Guide.pdf"},
+  {id:"ng",title:"Navigation General",pages:15,pdf:"Navigation_General_Study_Guide.pdf"},
+  {id:"cp",title:"Chart Plotting",pages:10,pdf:"Chart_Plotting_Study_Guide.pdf"}
+];
+const gimg=(g,i)=>`guides/${g.id}-${String(i).padStart(2,"0")}.jpg`;
+let gOpen=null;
+async function offlineStatus(){
+  const el=$("#offStat"); if(!el) return;
+  try{
+    if(!("caches" in window)){el.textContent="Offline storage isn't available in this browser.";return}
+    const keys=await caches.keys(); let have=0;
+    for(const k of keys){const c=await caches.open(k); have=Math.max(have,(await c.keys()).length)}
+    const want=SW_FILE_COUNT;
+    if(have>=want){el.textContent=`✓ Ready offline: app, all cards and all ${GUIDES.reduce((a,g)=>a+g.pages,0)} guide pages are saved on this device.`;el.className="offline ok"}
+    else{el.textContent=`Saving for offline use… ${have}/${want} files. Keep the app open on Wi-Fi for a minute, then reopen it.`;el.className="offline"}
+  }catch(e){el.textContent=""}
+}
+function gRender(){
+  const el=$("#view-guides");
+  if(gOpen){
+    const g=GUIDES.find(x=>x.id===gOpen);
+    el.innerHTML=`<div class="gview"><div class="gtop"><button class="btn" type="button" id="gBack">← Guides</button><span class="ttl">${esc(g.title)}</span>
+      <select id="gJump" aria-label="Jump to page">${Array.from({length:g.pages},(_,i)=>`<option value="${i+1}">Page ${i+1}</option>`).join("")}</select>
+      <a class="btn" href="${g.pdf}" target="_blank" rel="noopener">PDF</a></div>
+      ${Array.from({length:g.pages},(_,i)=>`<img class="gpage" id="gp${i+1}" src="${gimg(g,i+1)}" alt="${esc(g.title)} page ${i+1}" loading="${i<2?"eager":"lazy"}" width="1100" height="1424">`).join("")}</div>`;
+    $("#gBack").onclick=()=>{gOpen=null;gRender();window.scrollTo(0,0)};
+    $("#gJump").onchange=e=>{const t=document.getElementById("gp"+e.target.value); if(t) t.scrollIntoView({behavior:"smooth"})};
+    return;
+  }
+  el.innerHTML=`<section class="cfg"><h2>Study guides</h2><p class="hint" style="margin:0">Tap a guide to read it. Pinch to zoom. Everything here works offline.</p><p class="offline" id="offStat"></p></section>
+    <div class="glist">${GUIDES.map(g=>`<button type="button" class="gcard" data-id="${g.id}"><img src="${gimg(g,1)}" alt="" loading="lazy"><div><b>${esc(g.title)}</b><small>${g.pages} pages</small></div></button>`).join("")}</div>`;
+  el.querySelectorAll(".gcard").forEach(b=>b.onclick=()=>{gOpen=b.dataset.id;gRender();window.scrollTo(0,0)});
+  offlineStatus();
+}
+
+/* keyboard for exam/drill */
+document.addEventListener("keydown",e=>{
+  const tab=store.get("ca_tab","study"); if(e.target.tagName==="SELECT") return;
+  if(tab==="exam"&&ex.cur){const cur=ex.cur;
+    if(/^[1-4]$/.test(e.key)){const b=document.querySelector(`#view-exam .opt[data-k="${+e.key-1}"]`); if(b) b.click();}
+    else if(e.key==="ArrowRight"&&cur.pos<cur.n-1){cur.pos++;exSave();exRender()}
+    else if(e.key==="ArrowLeft"&&cur.pos>0){cur.pos--;exSave();exRender()}}
+  if(tab==="drill"&&/^[1-4]$/.test(e.key)){const b=document.querySelector(`#view-drill .opt[data-k="${+e.key-1}"]:not([disabled])`); if(b) b.click();}
+});
+showTab(store.get("ca_tab","study"));
+
 if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(()=>{});}
 </script>
 </body></html>
